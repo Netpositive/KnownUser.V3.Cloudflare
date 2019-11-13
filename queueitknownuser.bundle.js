@@ -1424,11 +1424,11 @@ var QueueIT;
                     var domainAlias = config.queueDomain;
                     if (!SDK.Utils.endsWith(domainAlias, "/"))
                         domainAlias = domainAlias + "/";
-                    var redirectUrl = "https://" + domainAlias + "error/" + errorCode + "/?" + query;
+                    var redirectUrl = "http://" + domainAlias + "error/" + errorCode + "/?" + query;
                     return new SDK.RequestValidationResult(SDK.ActionTypes.QueueAction, config.eventId, null, redirectUrl, null);
                 };
                 UserInQueueService.prototype.getInQueueRedirectResult = function (targetUrl, config, customerId) {
-                    var redirectUrl = "https://" + config.queueDomain + "/?" +
+                    var redirectUrl = "http://" + config.queueDomain + "/?" +
                         this.getQueryString(customerId, config.eventId, config.version, config.culture, config.layoutName) +
                         (targetUrl ? "&t=" + SDK.Utils.encodeUrl(targetUrl) : "");
                     return new SDK.RequestValidationResult(SDK.ActionTypes.QueueAction, config.eventId, null, redirectUrl, null);
@@ -1471,7 +1471,7 @@ var QueueIT;
                         var domainAlias = config.queueDomain;
                         if (!SDK.Utils.endsWith(domainAlias, "/"))
                             domainAlias = domainAlias + "/";
-                        var redirectUrl = "https://" + domainAlias + "cancel/" + customerId + "/" + config.eventId + "/?" + query;
+                        var redirectUrl = "http://" + domainAlias + "cancel/" + customerId + "/" + config.eventId + "/?" + query;
                         return new SDK.RequestValidationResult(SDK.ActionTypes.CancelAction, config.eventId, state.queueId, redirectUrl, state.redirectType);
                     }
                     else {
