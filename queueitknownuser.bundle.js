@@ -1,5 +1,19 @@
-const QUEUEIT_CUSTOMERID = "YOUR CUSTOMERID"; 
+const QUEUEIT_CUSTOMERID = "YOUR CUSTOMERID";
 const QUEUEIT_SECRETKEY = "YOUR SERCRET KEY";
+const IP_WHITELIST = [];
+
+// https://tech.mybuilder.com/determining-if-an-ipv4-address-is-within-a-cidr-range-in-javascript/
+const ip4ToInt = ip =>
+    ip.split('.').reduce((int, oct) => (int << 8) + parseInt(oct, 10), 0) >>> 0;
+
+const isIp4InCidr = ip => cidr => {
+    const [range, bits = 32] = cidr.split('/');
+    const mask = ~(2 ** (32 - bits) - 1);
+    return (ip4ToInt(ip) & mask) === (ip4ToInt(range) & mask);
+};
+
+const isIp4InCidrs = (ip, cidrs) => cidrs.some(isIp4InCidr(ip));
+
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
@@ -200,7 +214,13 @@ addEventListener('fetch', event => {
     event.respondWith( fetchAndApply(event.request));
   })
   async function fetchAndApply(request) {
+    // whitelist ip check
+    let clientIp = request.headers.get("cf-connecting-ip");
+    if (clientIp !== null && isIp4InCidrs(clientIp, IP_WHITELIST)) {
+      return await fetch(request);
+    }
 
+    // original queue-it things continue...
     if(request.url.indexOf('__push_queueit_config') > 0)
     {
       var result = await integrationConfigProvider.tryStoreIntegrationConfig(request,IntegrationConfigKV,QUEUEIT_SECRETKEY);
